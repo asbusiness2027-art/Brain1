@@ -35,6 +35,22 @@ async def reset(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text("تمام، بدأنا من الأول. إيه اللي تحتاجه؟")
 
 
+async def test(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    await update.message.reply_text("🔍 بجرب الاتصال بـ Claude API...")
+    try:
+        response = client.messages.create(
+            model="claude-haiku-5-5",
+            max_tokens=50,
+            messages=[{"role": "user", "content": "قول مرحبا"}],
+        )
+        await update.message.reply_text(f"✅ شغال! الرد: {response.content[0].text}")
+    except Exception as e:
+        await update.message.reply_text(
+            f"❌ فشل الاتصال:\n`{type(e).__name__}`\n\n`{str(e)[:500]}`",
+            parse_mode="Markdown",
+        )
+
+
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user_id = update.effective_user.id
     user_text = update.message.text
@@ -69,6 +85,7 @@ def main() -> None:
     app = Application.builder().token(TELEGRAM_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("reset", reset))
+    app.add_handler(CommandHandler("test", test))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     logger.info("Brian bot is running...")
     app.run_polling(allowed_updates=Update.ALL_TYPES)
