@@ -52,7 +52,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
 
     try:
         response = client.messages.create(
-            model="claude-sonnet-4-6",
+            model="claude-haiku-5-5",
             max_tokens=2048,
             system=SYSTEM_PROMPT,
             messages=user_histories[user_id],
@@ -61,8 +61,8 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE) -> 
         user_histories[user_id].append({"role": "assistant", "content": reply})
         await update.message.reply_text(reply)
     except Exception as e:
-        logger.error(f"Error calling Claude API: {e}")
-        await update.message.reply_text("حصل خطأ، حاول تاني بعد شوية.")
+        logger.error(f"Error calling Claude API: {e}", exc_info=True)
+        await update.message.reply_text(f"حصل خطأ:\n`{type(e).__name__}: {e}`", parse_mode="Markdown")
 
 
 def main() -> None:
